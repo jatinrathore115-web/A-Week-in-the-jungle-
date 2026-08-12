@@ -22,23 +22,27 @@
          royal blue    #2d6ff6  #004bf0                    (the elephant's overalls)
          cream / white #fcfdfd  #f3f1f0                    (the owl, speech bubbles)
 
-       COMPOSITION, straight off the cover: a WARM WOODEN object (the hanging
-       sign that carries the title) against a DEEP GREEN JUNGLE, under a cyan
-       sky. The book is built as that same picture — the world is the cool,
-       deeper value and the board is the warm, brighter one, which is what makes
-       the book pop without any outline around it. The board is WOOD rather than
-       flat gold because every framing object in this story is wood: the title
-       sign, the tree trunks, and the ring around the Play orb. */
-    --world:      #0b78b5;   /* sky — the clips' cyan, deepened for overhead */
-    --world-2:    #2f7d12;   /* canopy — jungle green midfield        */
-    --world-3:    #1b5205;   /* floor — deep jungle at the bottom     */
+       COMPOSITION: a LEAF-GREEN board floating in a PALE, AIRY light — the
+       reverse of the usual dark-surround storybook. The board is the saturated,
+       deeper value and the world behind it is the soft, light one, so the book
+       reads as an object lying on a bright table rather than as a window into a
+       dark room. Green board because green is this story's signature (the word
+       "Jungle" on the cover, the canopy, the vine ring around the Play orb), and
+       the pale surround keeps a very colourful cover from having to fight a
+       colourful background.
+       KEY CONSEQUENCE of a light world: anything that sits OUTSIDE the book has
+       to be dark or saturated to be seen. The nav buttons are green-faced (not
+       gold) and the menu chip stays deep green for exactly that reason. */
+    --world:      #d9ece4;   /* light — pale mint, top-left           */
+    --world-2:    #e8eecb;   /* light — pale sage through the middle  */
+    --world-3:    #f7e6ab;   /* light — pale butter along the bottom  */
     --paper:      #f8efd8;   /* page surface — warm cream (the art's cream) */
     --paper-2:    #eddcb4;   /* page surface (deeper variant)        */
-    --ink:        #4a2a02;   /* text — the art's cocoa outline colour */
-    --cover:      #e0982c;   /* BOARD — varnished sign-wood / sand gold */
-    --cover-2:    #b96f16;   /* board mid                            */
-    --cover-3:    #8a4d07;   /* board deepest (spine) — deep wood     */
-    --cover-edge: #4a2a02;   /* binding edge — cocoa                 */
+    --ink:        #2f5214;   /* text — deep leaf green                */
+    --cover:      #7cae4b;   /* BOARD — leaf green                   */
+    --cover-2:    #67963a;   /* board mid                            */
+    --cover-3:    #4e7827;   /* board deepest (spine)                */
+    --cover-edge: #2f5214;   /* binding edge — deep leaf green        */
     --accent:     #fdc21a;   /* the Play orb's gold                  */
     --accent-2:   #d9660a;   /* sign orange — reads on a LIGHT bg     */
     --tape:       rgba(254, 232, 94, 0.60);   /* warm gold washi-tape */
@@ -54,21 +58,20 @@
     --page-edge:  #f2e7cd;   /* page-stack edge colour (off-white paper) */
     --page-back:   #f4ead3;  /* BACK of a page + the right-side page stack (OFF-WHITE) */
     --page-back-2: #ddc9a0;  /* faint cream shading for the fold / stack edges */
-    /* BUTTON GOLD — the FACE of the Play orb (pages/play button.png, sampled
-       #fea801 / #fedb02). Every other control in the book is built the same way
-       round as that orb — gold face, leaf-green ring, white glyph — so the first
-       button a reader ever taps and every one after it are one object at
-       different sizes.
-       WHY GOLD AND NOT GREEN: the world around the book is jungle green, and a
-       green button on it disappears at the small sizes the corner arrows use.
-       Gold-on-green is the strongest pairing this art offers, and it is exactly
-       how the artwork itself solves the same problem — the orb is gold because
-       it has to be found against leaves. The green moves to the RING, where it
-       ties the button to the world without swallowing it. */
-    --btn:        #fcbe1c;
-    --btn-lit:    #fee06a;
-    --btn-deep:   #e08a06;
-    --btn-ring:   #4a9e12;   /* the vine ring around the orb */
+    /* BUTTON GREEN — the board's own leaf green, one step brighter so a button
+       never disappears into the cover it sits beside, with the Play orb's GOLD
+       as the ring. Green face + gold ring + white glyph, the same set at every
+       size.
+       WHY GREEN AND NOT GOLD: the nav arrows live OUTSIDE the book on the pale
+       world, and gold on pale butter is nearly invisible. Green is the value that
+       reads there, and it matches the board. (When the surround was deep jungle
+       this was the other way round — the rule is "whatever contrasts with the
+       WORLD", not a fixed colour, so if you ever darken --world again, swap the
+       face and the ring back.) */
+    --btn:        #74b83a;
+    --btn-lit:    #96d45c;
+    --btn-deep:   #467a1c;
+    --btn-ring:   #fee85e;   /* the orb's gold rim */
     /* JUNGLE SHADE — there is no night in this story, so the dark value is the
        deep shade under the canopy. Used for the dark UI chips (the menu), THE
        END page and shadow tints, so shadows read as the story's own green
@@ -120,34 +123,32 @@
   /* The <html> element and the fullscreen backdrop MUST be opaque night-blue:
      during the fullscreen zoom (Play tap) the browser briefly paints the bare
      document + backdrop, and without this they flash WHITE. */
-  html { background: #0b78b5; }
-  html::backdrop { background: #0b78b5; }
+  html { background: #d9ece4; }
+  html::backdrop { background: #d9ece4; }
 
   body {
     min-height: 100svh;
     display: flex; align-items: center; justify-content: center;
     font-family: var(--font-hand); color: var(--ink);
-    /* THE STORY'S OWN LANDSCAPE, continued past the edges of the book. Every
-       clip is the same establishing shot — cyan sky, green canopy, a golden
-       riverbank — so the surround is built as that shot with the book standing
-       on the bank: the clips' sky overhead, washing down through canopy green
-       into deep jungle, with the RIVERBANK'S SAND GOLD blooming up from behind
-       the book. Read the cover art and this backdrop together and they are one
-       picture.
-       DEEP on purpose: the warm wooden board only pops because the ground
-       behind it is the darker value (see the note on --world). The sand glow is
-       the one warm note, and it sits directly under the book so it reads as the
-       bank the book is resting on rather than as a stray light. */
+    /* A PALE, AIRY LIGHT the book lies in — the story's own colours drained
+       almost to white: the clips' mint-cyan in the top corner, their sand gold
+       along the bottom, a breath of canopy green through the middle. Kept very
+       light on purpose. The cover art is extremely colourful, and a saturated
+       surround made the two compete; at this value the green board is the only
+       saturated thing on screen, so the eye goes straight to it.
+       All four layers stay within a narrow, high range — no stop here is darker
+       than the board, which is what keeps the book reading as the object and
+       this as the space around it. */
     background:
-      radial-gradient(circle at 78%  8%, rgba(69,202,247,0.55) 0, transparent 44%),  /* bright sky patch */
-      radial-gradient(circle at 50% 100%, rgba(253,190,74,0.34) 0, transparent 58%), /* riverbank sand glow under the book */
-      radial-gradient(circle at  8% 90%, rgba(48,121,4,0.55) 0, transparent 52%),    /* canopy in the near corner */
+      radial-gradient(circle at 78%  8%, rgba(168,220,206,0.55) 0, transparent 46%), /* mint breath, top corner */
+      radial-gradient(circle at 50% 100%, rgba(247,214,130,0.55) 0, transparent 58%),/* warm sand along the foot */
+      radial-gradient(circle at  8% 90%, rgba(178,208,150,0.50) 0, transparent 52%), /* faint canopy green, near corner */
       linear-gradient(168deg,
         var(--world)    0%,
-        #1596bf       26%,
+        #e3f0d9       26%,
         var(--world-2) 54%,
         var(--world-3) 86%,
-        #133c04      100%);
+        #f9edbf      100%);
     /* NOTE: no `background-attachment: fixed`. The page never scrolls (html/body
        are overflow:hidden), so it bought nothing visually, and on mobile GPUs a
        fixed background can force the whole backdrop out of the fast compositing
@@ -227,7 +228,9 @@
     position: absolute; inset: -16px -42px -16px -16px; z-index: 0;
     border-radius: 3px;
     background: linear-gradient(135deg, var(--cover) 0%, var(--cover-2) 55%, var(--cover-3) 100%);
-    box-shadow: 0 26px 55px rgba(10,38,4,0.42), inset 0 0 0 3px rgba(255,246,214,0.16);
+    /* Softened for the pale world — a heavy drop shadow under the open book put
+       a dark bruise on the light backdrop. */
+    box-shadow: 0 20px 44px rgba(60,96,40,0.26), inset 0 0 0 3px rgba(245,255,225,0.18);
     opacity: 0; transition: opacity 500ms ease 150ms;
   }
   body.is-open .book-frame { opacity: 1; }
@@ -436,9 +439,9 @@
     position: absolute; left: 50%; bottom: 3%;
     width: 44%; height: 9%;
     transform: translateX(-50%);
-    /* the floor is the story's jungle green, so the book's shadow is a deep
-       green — a warm brown shadow on green reads as a stain, not as shade */
-    background: radial-gradient(ellipse at center, rgba(14,42,4,0.48), rgba(14,42,4,0) 70%);
+    /* A soft green-grey shade. Much lighter than it was: on the pale world a
+       0.48 shadow read as a dark smear under the book rather than as contact. */
+    background: radial-gradient(ellipse at center, rgba(74,112,52,0.30), rgba(74,112,52,0) 70%);
     filter: blur(12px);
     z-index: 0; opacity: 0.75; pointer-events: none;   /* never swallow a tap */
     transition: width var(--cover-ms) var(--cover-ease),
@@ -803,21 +806,21 @@
   /* Front of the cover (seen when the book is closed). The artwork fills it edge
      to edge — plain cover, no decorative frame. */
   .cover .front {
-    /* SIGN-WOOD HARDCOVER BOARD — the warm varnished wood of the hanging sign
-       that carries the title on the cover art, which is also the wood of the
-       trunks and of the ring around the Play orb. So the board reads as a piece
-       of the cover art rather than a frame bolted around it. Against the deep
-       green world this board is the BRIGHTER value: exactly the figure/ground
-       split the wooden sign has against the jungle behind it.
-       The rim is a cocoa edge — the art outlines every shape in that same brown,
-       so the board gets the outline the drawing style expects. INSET ONLY: an
-       outer halo here paints OVER the board and the art (this element sits in
-       the preserve-3d cover stack, where outer shadows ignore paint order). */
+    /* LEAF-GREEN HARDCOVER BOARD — the story's signature green, the one the
+       word "Jungle" is lettered in and the vine ring around the Play orb is
+       drawn with, so the board reads as a piece of the cover art rather than a
+       frame bolted around it. Against the pale world this board is the
+       SATURATED value — it is the only strong colour outside the artwork, which
+       is what makes the book read as a solid object in a bright space.
+       The rim is a deep-green edge rather than cocoa: on a green board a brown
+       line reads as grime, not as an outline. INSET ONLY: an outer halo here
+       paints OVER the board and the art (this element sits in the preserve-3d
+       cover stack, where outer shadows ignore paint order). */
     background:
-      radial-gradient(ellipse at 50% 34%, rgba(255,246,214,0.42) 0%, rgba(0,0,0,0) 68%),
-      linear-gradient(135deg, #f0b64a 0%, var(--cover) 46%, var(--cover-3) 100%);
-    box-shadow: inset 0 0 0 2px rgba(94,50,8,0.42),
-                inset 0 0 52px rgba(140,78,1,0.22);
+      radial-gradient(ellipse at 50% 34%, rgba(245,255,225,0.34) 0%, rgba(0,0,0,0) 68%),
+      linear-gradient(135deg, #8cbb59 0%, var(--cover) 46%, var(--cover-3) 100%);
+    box-shadow: inset 0 0 0 2px rgba(47,82,20,0.50),
+                inset 0 0 52px rgba(40,72,16,0.20);
     color: #fff;
     display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
     padding: 7% 8%;
@@ -876,12 +879,13 @@
       linear-gradient(#fee85e, #e0982c) 3px calc(100% - 49px) / 25px 9px,
       /* soft rounded-edge highlight on the outer left */
       linear-gradient(90deg, rgba(255,247,220,0.20) 0 3px, rgba(255,247,220,0) 8px),
-      /* The spine board: a COCOA SHADE over the gold board with a crease at its
-         right edge — the same brown the art outlines every shape with. Kept
-         translucent so it darkens the gold rather than covering it; a solid dark
-         band would read as a bar bolted to the cover instead of a binding. */
-      linear-gradient(90deg, rgba(140,78,1,0.34) 0 74%, rgba(94,50,8,0.50) 74% 84%,
-                      rgba(140,78,1,0.14) 94%, rgba(0,0,0,0) 100%);
+      /* The spine board: a DEEP GREEN SHADE over the board with a crease at its
+         right edge. Kept translucent so it darkens the green rather than
+         covering it; a solid dark band would read as a bar bolted to the cover
+         instead of a binding. Green, not brown — a cocoa wash over green turns
+         olive and looks like a stain. */
+      linear-gradient(90deg, rgba(47,82,20,0.34) 0 74%, rgba(32,58,12,0.52) 74% 84%,
+                      rgba(47,82,20,0.14) 94%, rgba(0,0,0,0) 100%);
     background-repeat: no-repeat;
   }
   /* Once the book OPENS, the cover flips to the left and parks. Its reverse side
@@ -1731,16 +1735,19 @@
     .rotate-notice {
       display: flex; position: fixed; inset: 0; z-index: 100000;
       align-items: center; justify-content: center; text-align: center; padding: 8vw;
+      /* Same pale light as the book's world, so rotating the device is not a
+         jump from a bright screen to a dark one. The icon and text go DEEP GREEN
+         here — cream on pale would be unreadable. */
       background:
-        radial-gradient(circle at 78% 20%, rgba(69,202,247,0.30), transparent 40%),
-        radial-gradient(circle at 20% 88%, rgba(253,194,26,0.24), transparent 50%),
-        linear-gradient(165deg, #063f5c 0%, #16743c 48%, #1b5205 100%);
+        radial-gradient(circle at 78% 20%, rgba(168,220,206,0.55), transparent 44%),
+        radial-gradient(circle at 20% 88%, rgba(247,214,130,0.55), transparent 52%),
+        linear-gradient(165deg, var(--world) 0%, var(--world-2) 48%, var(--world-3) 100%);
     }
     .rotate-inner { max-width: 82vw; }
-    .rotate-icon  { width: 20vw; height: auto; color: #fcf2d2; display: inline-block;
+    .rotate-icon  { width: 20vw; height: auto; color: #3d6b1c; display: inline-block;
                     animation: rotateHint 1.8s ease-in-out infinite; }
     .rotate-text  { margin-top: 5vh; font-family: var(--font-head); font-weight: 600;
-                    color: #fcf2d2; font-size: 6.2vw; line-height: 1.3; }
+                    color: #2f5214; font-size: 6.2vw; line-height: 1.3; }
     @keyframes rotateHint { 0%,100% { transform: rotate(-18deg); } 50% { transform: rotate(18deg); } }
   }
 
@@ -1780,9 +1787,9 @@
     background:
       /* top-left glass highlight — reads as a shiny bubble */
       radial-gradient(circle at 32% 22%, rgba(255,255,255,0.42), rgba(255,255,255,0) 46%),
-      /* cool bounce light from below — the green world reflecting up into the
-         gold, which is what stops the face reading as a flat sticker */
-      radial-gradient(circle at 50% 124%, rgba(74,158,18,0.45), rgba(74,158,18,0) 62%),
+      /* warm bounce light from below — the pale butter world reflecting up into
+         the green, which is what stops the face reading as a flat sticker */
+      radial-gradient(circle at 50% 124%, rgba(250,225,150,0.50), rgba(250,225,150,0) 62%),
       linear-gradient(160deg, var(--btn-lit) 0%, var(--btn) 52%, var(--btn-deep) 100%);
     /* PERF: this shadow stack is STATIC. It used to be driven by a `navGlow`
        keyframe that animated box-shadow — a paint property — which meant both
@@ -1790,31 +1797,32 @@
        the book was open, competing with the page-flip for frame budget. The
        chevron rock below is the attention cue instead, and it animates transform
        only, so it rides the compositor for free. */
-    /* The VINE RING then the COCOA KEYLINE. The keyline is what makes these read
-       as drawn in the same hand as the art: every shape in the clips and on the
-       cover is outlined in that brown, and a bubble without it floated on the
-       green world at small book scales. Ring 4px, then the brown line just
-       outside it. The outer glow is gold so the button still throws a little
-       light onto the green backdrop it sits on. */
+    /* The GOLD RING then the DEEP-GREEN KEYLINE. The keyline is what makes these
+       read as drawn in the same hand as the art — every shape in the clips and on
+       the cover carries an outline — and it is also what separates the button
+       from the PALE world, where an unoutlined green disc goes soft at the edges.
+       Ring 4px, then the dark line just outside it. Both the drop shadow and the
+       inner shade are much lighter than the dark-world version: on this backdrop
+       they were reading as smudges. */
     box-shadow: inset 0 0 0 4px var(--btn-ring),
-                inset 0 -6px 14px rgba(90,52,2,0.42),
+                inset 0 -6px 14px rgba(40,72,16,0.45),
                 inset 0 5px 12px rgba(255,255,255,0.30),
-                0 7px 18px rgba(10,38,4,0.60),
-                0 0 16px 2px rgba(253,194,26,0.34),
-                0 0 0 2.5px rgba(71,30,1,0.65);
+                0 6px 14px rgba(60,96,40,0.34),
+                0 0 14px 2px rgba(253,194,26,0.28),
+                0 0 0 2.5px rgba(38,64,16,0.70);
     transition: background 180ms ease;
   }
-  /* The WHITE chevron sits on the bubble. On a GOLD face white needs a real
-     edge, not a hint of one, so the shadow is the art's cocoa at full strength —
-     the same treatment the white play triangle gets on the orb itself. */
+  /* The WHITE chevron sits on the bubble, with a deep-green edge under it so it
+     stays crisp on the green face — the same treatment the white play triangle
+     gets on the orb itself. */
   .corner-arrow svg {
     position: relative; z-index: 1; width: 46%; height: 46%;
-    filter: drop-shadow(0 2px 3px rgba(74,42,2,0.85));
+    filter: drop-shadow(0 2px 3px rgba(30,54,12,0.85));
   }
   .corner-arrow:hover::before { background:
       radial-gradient(circle at 32% 22%, rgba(255,255,255,0.55), rgba(255,255,255,0) 46%),
-      radial-gradient(circle at 50% 120%, rgba(74,158,18,0.55), rgba(74,158,18,0) 64%),
-      linear-gradient(160deg, #fff09a 0%, #fed23a 52%, #f0a010 100%); }
+      radial-gradient(circle at 50% 120%, rgba(250,225,150,0.60), rgba(250,225,150,0) 64%),
+      linear-gradient(160deg, #b0e274 0%, #86c744 52%, #558c22 100%); }
   /* IDLE INVITATION: the forward chevron rocks gently the whole time it is
      available, so "tap here to go on" needs no explaining. */
   .corner-arrow.fwd  svg { animation: navRockF 2.4s ease-in-out infinite; }
