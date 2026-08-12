@@ -78,6 +78,17 @@
     <div class="rotate-text">Please rotate your device<br />to landscape to read</div>
   </div>
 </div>
+<!-- FALLING LEAVES — ambient jungle weather in the space around the book.
+     Purely decorative: this layer is FIXED to the viewport and painted BEHIND
+     the book (see .leaf-fall in styles.css), so a leaf can never drift across a
+     page and compete with the story. Static markup, no JS: each <i> is one leaf
+     and the stylesheet gives it its own size, tint, path and speed by nth-child,
+     so nothing has to be generated at runtime. Add or remove <i>s freely — the
+     rules cycle every 14. -->
+<div class="leaf-fall" aria-hidden="true">
+  <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+  <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+</div>
 <div class="scene">
   <div class="stage">
     <!-- Fixed 1280×720 book layer. JS scales it (transform) to fit the screen. -->

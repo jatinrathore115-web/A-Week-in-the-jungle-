@@ -155,8 +155,125 @@
        path. */
   }
 
+  /* ==========================================================================
+     FALLING LEAVES  —  ambient jungle weather in the pale space around the book
+     --------------------------------------------------------------------------
+     Markup: one <i> per leaf in index.html. This layer is FIXED to the viewport
+     and sits at z-index 0, with .scene lifted to z-index 1, so every leaf passes
+     BEHIND the book. That single decision is what keeps it from clashing: the
+     motion lives only in the empty surround, and the moment a leaf reaches the
+     board it disappears under it. Nothing ever crosses the artwork or the text.
+
+     COSY, NOT BUSY. Three things keep it calm:
+       • low opacity (peaks around 0.45) against an already-pale ground, so the
+         leaves read as depth rather than as objects demanding attention;
+       • long, unequal fall times (13-27s) — no two leaves ever pair up into a
+         visible rhythm, which is what makes CSS weather look mechanical;
+       • the sway is wide and slow, the tumble is slower still, so a leaf drifts
+         the way a real one does instead of ticking down the screen.
+
+     WIND is a shared gust on the CONTAINER: every leaf leans together on a 19s
+     cycle, over the top of its own sway. That common movement is what the eye
+     reads as air, and it costs one extra animated element.
+
+     PERF: transform + opacity only, both compositor properties, so the whole
+     layer is off the main thread and does not compete with the page-flip. No
+     shadows, no filters, no blur — those would repaint every frame.
+     ========================================================================== */
+  .leaf-fall {
+    position: fixed; inset: -6vh -6vw; z-index: 0;
+    overflow: hidden; pointer-events: none;   /* never swallow a tap */
+    animation: leafWind 19s ease-in-out infinite;
+  }
+  /* the shared gust — everything leans, then eases back */
+  @keyframes leafWind {
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    35%      { transform: translate3d(-2.2vw, 0, 0); }
+    70%      { transform: translate3d(1.6vw, 0, 0); }
+  }
+  /* THE FALLING WRAPPER. One animation carries both axes: Y always increases
+     while X weaves, because a second animation on the same element would just
+     overwrite `transform`. The leaf SHAPE lives on ::before, which is therefore
+     free to tumble independently. */
+  .leaf-fall i {
+    position: absolute; top: 0;
+    width: var(--sz, 18px); height: var(--sz, 18px);
+    opacity: 0;
+    animation: leafFall var(--dur, 18s) ease-in-out var(--del, 0s) infinite;
+    will-change: transform;
+  }
+  @keyframes leafFall {
+    0%   { opacity: 0;                transform: translate3d(0, -12vh, 0); }
+    8%   { opacity: var(--op, 0.42);  }
+    25%  { transform: translate3d(calc(var(--sway, 6vw) *  1),    22vh, 0); }
+    50%  { transform: translate3d(calc(var(--sway, 6vw) * -0.65), 48vh, 0); }
+    75%  { opacity: var(--op, 0.42);
+           transform: translate3d(calc(var(--sway, 6vw) *  0.85), 76vh, 0); }
+    100% { opacity: 0;
+           transform: translate3d(calc(var(--sway, 6vw) * -0.25), 114vh, 0); }
+  }
+  /* THE LEAF ITSELF — a two-corner border-radius gives the pointed almond of a
+     real leaf, and the pale diagonal is its midrib. Drawn, not imaged, so it
+     costs nothing to load and tints from a variable. */
+  .leaf-fall i::before {
+    content: ""; position: absolute; inset: 0;
+    border-radius: 0 78% 0 78%;
+    background:
+      linear-gradient(to bottom right, rgba(0,0,0,0) 47%,
+                      rgba(255,255,255,0.5) 49.5%, rgba(0,0,0,0) 52%),
+      linear-gradient(135deg, var(--leaf-lit, #91bf13), var(--leaf, #4a8e06));
+    animation: leafTumble var(--spin, 7s) ease-in-out infinite;
+    will-change: transform;
+  }
+  /* Tumble AND flutter: the rotation turns the leaf over, the scaleX squeeze is
+     it presenting its edge to you mid-turn. Without the squeeze it reads as a
+     sticker spinning on a pin. */
+  @keyframes leafTumble {
+    0%, 100% { transform: rotate(-18deg) scaleX(1);    }
+    30%      { transform: rotate(38deg)  scaleX(0.35); }
+    60%      { transform: rotate(148deg) scaleX(0.9);  }
+    80%      { transform: rotate(96deg)  scaleX(0.5);  }
+  }
+  /* PER-LEAF CHARACTER. Left position, size, tint, fall time, sway width, spin
+     time and start delay, all different. The delays are spread right across the
+     cycle so the screen is never empty and never gusts all at once. Greens
+     dominate; three warm ones stand in for older leaves.
+
+     POSITIONS ARE EDGE-WEIGHTED, and that is the whole trick. On a 16:9 screen
+     the book fills nearly the full width, leaving only a narrow margin either
+     side — an even spread put half the leaves permanently behind the board where
+     nobody would ever see them. So they cluster in the OUTER FIFTHS, where the
+     pale ground actually shows. The four that do start near the middle are the
+     ones with the widest sway, so they travel out into view, and they are still
+     seen crossing the bands above and below the book.
+     If you ever change the book's size or the viewport shape, revisit this
+     spread — visible surround is what it is tuned to. */
+  .leaf-fall i:nth-child(1)  { left:  1%; --sz: 26px; --dur: 21s; --del: -2s;  --sway: 6vw;   --spin: 6.5s; --op: 0.72; --leaf: #4a8e06; --leaf-lit: #91bf13; }
+  .leaf-fall i:nth-child(2)  { left:  5%; --sz: 17px; --dur: 27s; --del: -9s;  --sway: 4vw;   --spin: 9s;   --op: 0.55; --leaf: #5fa511; --leaf-lit: #c9cf30; }
+  .leaf-fall i:nth-child(3)  { left:  9%; --sz: 31px; --dur: 16s; --del: -14s; --sway: 5vw;   --spin: 5.5s; --op: 0.78; --leaf: #307904; --leaf-lit: #5fa511; }
+  .leaf-fall i:nth-child(4)  { left: 14%; --sz: 15px; --dur: 24s; --del: -5s;  --sway: 3.5vw; --spin: 8s;   --op: 0.50; --leaf: #91bf13; --leaf-lit: #d3d436; }
+  .leaf-fall i:nth-child(5)  { left: 19%; --sz: 22px; --dur: 19s; --del: -17s; --sway: 4.5vw; --spin: 7s;   --op: 0.62; --leaf: #d78027; --leaf-lit: #f0b64a; }
+  .leaf-fall i:nth-child(6)  { left: 34%; --sz: 28px; --dur: 25s; --del: -11s; --sway: 13vw;  --spin: 10s;  --op: 0.58; --leaf: #4a8e06; --leaf-lit: #91bf13; }
+  .leaf-fall i:nth-child(7)  { left: 46%; --sz: 18px; --dur: 14s; --del: -3s;  --sway: 15vw;  --spin: 6s;   --op: 0.55; --leaf: #5fa511; --leaf-lit: #c9cf30; }
+  .leaf-fall i:nth-child(8)  { left: 58%; --sz: 24px; --dur: 22s; --del: -19s; --sway: 14vw;  --spin: 8.5s; --op: 0.60; --leaf: #307904; --leaf-lit: #5fa511; }
+  .leaf-fall i:nth-child(9)  { left: 70%; --sz: 16px; --dur: 26s; --del: -7s;  --sway: 12vw;  --spin: 9.5s; --op: 0.52; --leaf: #c9902a; --leaf-lit: #f0d060; }
+  .leaf-fall i:nth-child(10) { left: 81%; --sz: 30px; --dur: 17s; --del: -22s; --sway: 5vw;   --spin: 5.8s; --op: 0.76; --leaf: #4a8e06; --leaf-lit: #91bf13; }
+  .leaf-fall i:nth-child(11) { left: 86%; --sz: 20px; --dur: 23s; --del: -13s; --sway: 4vw;   --spin: 7.5s; --op: 0.56; --leaf: #5fa511; --leaf-lit: #c9cf30; }
+  .leaf-fall i:nth-child(12) { left: 90%; --sz: 25px; --dur: 15s; --del: -6s;  --sway: 5.5vw; --spin: 6.2s; --op: 0.68; --leaf: #d78027; --leaf-lit: #f0b64a; }
+  .leaf-fall i:nth-child(13) { left: 94%; --sz: 15px; --dur: 20s; --del: -16s; --sway: 3.5vw; --spin: 8.8s; --op: 0.50; --leaf: #307904; --leaf-lit: #5fa511; }
+  .leaf-fall i:nth-child(14) { left: 98%; --sz: 27px; --dur: 13s; --del: -10s; --sway: 6vw;   --spin: 7.2s; --op: 0.70; --leaf: #4a8e06; --leaf-lit: #91bf13; }
+  /* Weather is the definition of non-essential motion — with motion reduced it
+     goes away entirely rather than sitting frozen as a scatter of blobs. */
+  @media (prefers-reduced-motion: reduce) {
+    .leaf-fall { display: none; }
+  }
+
   /* Whole scene fades + scales in on load (entrance animation) */
   .scene {
+    /* POSITIONED + z-index 1 so the whole book layer sits ABOVE .leaf-fall.
+       Without this the fixed leaf layer would paint over the book, because a
+       positioned element beats static in-flow content in the paint order. */
+    position: relative; z-index: 1;
     width: 100%; min-height: 100svh;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
