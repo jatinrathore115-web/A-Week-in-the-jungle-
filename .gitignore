@@ -1,0 +1,4 @@
+# Windows / macOS shell cruft — never part of the book
+Thumbs.db
+desktop.ini
+.DS_Store

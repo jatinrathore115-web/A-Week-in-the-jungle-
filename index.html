@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  FLIPBOOK TEMPLATE  —  interactive 3D storybook
+  ----------------------------------------------------------------------------
+  • No build step, no frameworks. Just open this file in any modern browser.
+  • A real 3D hardcover book: thickness, a spine, a soft shadow. Tap PLAY to
+    open it (the cover swings on the spine), then flip through the pages.
+
+  ►  TO MAKE YOUR OWN STORY, edit ONLY:
+        story.js      → your pages, scenes, dialogues + cover
+        pages/        → your scene images (.webp) / videos + cover art
+     The engine files (script.js, styles.css, gsap.min.js) stay as-is.
+     See README.md for the step-by-step.
+
+  MEDIA FORMATS
+  ----------------------------------------------------------------------------
+  • Video : WebM (VP9 video + Opus audio, yuv420p)
+  • Audio : Ogg (Opus, 64k mono / 96k stereo)
+  • Images: WebP
+  Supported by Chrome, Edge, Firefox, and Safari 14.1+ (macOS Big Sur 11+ /
+  iOS 14.5+). There is no MP4/MP3 fallback — on an older Safari the pages would
+  not play, so if you must support those, add <source> siblings and ship both.
+
+  EVERYTHING PRELOADS FIRST: on boot the Play button is hidden and a progress
+  bar takes its place; the button only pops in once every asset above is in the
+  browser's cache (see the PRELOADER section in script.js).
+  ============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover" />
+<!-- ►► YOUR BOOK'S TITLE — this is the browser tab / bookmark name. -->
+<title>A Week in the Jungle</title>
+
+<!-- ── Google Fonts — TRIMMED to only what actually renders ──
+     Kept:    Fredoka 600/700  (THE END title, Read again, ☰ menu, rotate notice)
+              Patrick Hand     (the body font)
+     Dropped: Caveat  — its only rule was `.cover .back .line`, and the back of
+                        the cover is intentionally blank, so no element matches.
+              Poppins — its only rule was `.bubble-text`. Re-add it (weight 600)
+                        if you start using speech bubbles.
+              Fredoka 500 — no rule requests weight 500.
+     Re-add a family here if you start using it; the CSS tokens still name them
+     with system fallbacks, so nothing breaks in the meantime. -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Patrick+Hand&display=swap"
+  rel="stylesheet"
+/>
+
+<!-- FAVICON as an inline data: URI. Without a declared icon the browser requests
+     /favicon.ico on every load all by itself and takes a 404 — visible in the
+     console and in the network log. Inlining it answers that request with ZERO
+     network cost. -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%23edb02c'/%3E%3Crect x='6' y='5' width='20' height='22' rx='2' fill='%23f8efd8'/%3E%3Crect x='6' y='5' width='5' height='22' rx='2' fill='%235e3208'/%3E%3Cpath d='M18 9l1.6 4.9H24l-3.6 2.6 1.4 4.3-3.8-2.8-3.8 2.8 1.4-4.3L12 13.9h4.4z' fill='%23f6be10'/%3E%3C/svg%3E" />
+
+<!-- Book styling / theme (engine — do not edit) -->
+<link rel="stylesheet" href="styles.css" />
+<!-- Preload ONLY the critical first-paint asset: the cover art. Videos stay
+     lazy (the engine buffers just the current + next page on demand).
+     ►► If you rename your cover, change the href here as well as `cover:` in
+     story.js (percent-encode any spaces: "my cover.webp" → "my%20cover.webp"). -->
+<link rel="preload" as="image" href="pages/cover%20page.png" />
+<link rel="preload" as="image" href="pages/play%20button.png" />
+</head>
+
+<body>
+<!-- Landscape lock: on phones/tablets (touch), the book shows only in landscape.
+     In portrait the scene is hidden and this rotate prompt is shown instead. -->
+<div class="rotate-notice" id="rotateNotice">
+  <div class="rotate-inner">
+    <svg class="rotate-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="currentColor" d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
+    </svg>
+    <div class="rotate-text">Please rotate your device<br />to landscape to read</div>
+  </div>
+</div>
+<div class="scene">
+  <div class="stage">
+    <!-- Fixed 1280×720 book layer. JS scales it (transform) to fit the screen. -->
+    <div class="flip-scale" id="flipScale">
+    <!-- INNER scale wrapper: the open motion runs here, so it composes with the
+         outer responsive scale of .flip-scale. -->
+    <div class="book-stage" id="bookStage">
+    <!-- Outer hardcover outline — visible once the book is open -->
+    <div class="book-frame"></div>
+    <div class="floor-shadow"></div>
+
+    <!-- The page-turning book mounts here (JS injects one .leaf per page).
+         Sits beneath the 3D cover layer; revealed once the cover swings open.
+         .page-stack = the PAPER fore-edges of the pages still to be turned, down
+         the right-hand side: six stacked sheets in white / off-white / ivory, so
+         the open book reads as a real block of paper you are working through. -->
+    <div id="flipbook">
+      <div class="page-stack" aria-hidden="true">
+        <i></i><i></i><i></i><i></i><i></i><i></i>
+      </div>
+    </div>
+
+    <!-- Moving shadow the opening cover casts on the inside page. -->
+    <div class="cover-cast"></div>
+
+    <!-- The 3D hardcover + cover-opening animation (own perspective layer). -->
+    <div class="cover-scene" id="coverScene">
+    <div class="book-float" id="bookFloat">
+      <div class="book-pop" id="bookPop">
+        <div class="book" id="book">
+          <div class="book-inner" id="bookInner">
+
+            <!-- Open-book back cover backing -->
+            <div class="book-body"></div>
+
+            <!-- The 3D page block that gives the closed book its thickness.
+                 pb-pages / pb-back-lip = the flat "book anatomy" of the closed
+                 front view: the page stack peeking out UNDER the front cover,
+                 resting on the back-cover lip (they fade out as the book opens). -->
+            <div class="pageblock">
+              <div class="pbf pb-back"></div>
+              <div class="pbf pb-left"></div>
+              <div class="pbf pb-right"></div>
+              <div class="pbf pb-top"></div>
+              <div class="pbf pb-bottom"></div>
+              <div class="pbf pb-front"></div>
+              <div class="pb-back-lip" aria-hidden="true"></div>
+              <div class="pb-pages" aria-hidden="true"></div>
+            </div>
+
+            <!-- Front hardcover (last so it stacks in front when closed). -->
+            <div class="cover-holder">
+            <div class="cover" id="cover">
+              <div class="face front">
+                <div class="cover-img"></div>
+                <!-- Ornate GOLD cover frame (corner filigree + edge stars + double
+                     rule). One SVG in book-space (1280×720) so it scales crisply
+                     with the book — makes the closed cover read as a bound storybook. -->
+                <svg class="cover-frame" viewBox="0 0 1280 720" aria-hidden="true">
+                  <!-- A single clean thin gold rule frames the cover — the busy
+                       corner filigree, edge stars and corner brackets were
+                       removed to keep the cover simple and uncluttered.
+                       Pulled OUT to hug the enlarged poster plate (the cover art
+                       now fills the board, so the rule reads as a printed
+                       keyline 10px inside the artwork's edge). -->
+                  <rect x="52" y="38" width="1198" height="644" rx="6" fill="none"
+                        stroke="#f7dc60" stroke-width="2.2" opacity="0.9"/>
+                </svg>
+                <div class="back-fill"></div>
+                <div class="curl"></div>
+                <!-- LOADING BAR — sits where the Play button will appear. JS
+                     (bootPreload) drives the fill and the %, then hides this and
+                     pops the button in. Themed to the book: sand track, gold
+                     fill, gold rim. -->
+                <div class="loader" id="loader" role="progressbar"
+                     aria-label="Loading the story" aria-valuemin="0"
+                     aria-valuemax="100" aria-valuenow="0">
+                  <div class="loader-track"><div class="loader-fill" id="loaderFill"></div></div>
+                  <div class="loader-pct" id="loaderPct">0%</div>
+                </div>
+                <button class="play-btn is-loading" id="hint" type="button" aria-label="Play — open the book">
+                  <!-- PLAY ARTWORK — pages/play button.png. Swap that file (keep
+                       the name) to restyle the button; the orb keeps its idle
+                       breathing, hover lift and gold press flash/shockwave either
+                       way. NOTE: this art has an opaque backdrop, so styles.css
+                       masks it to a disc — see the .play-img block there before
+                       swapping in something a different shape.
+                       The engine registers this <img> with the preloader by
+                       hand, since it is static markup rather than engine-built. -->
+                  <span class="core" aria-hidden="true">
+                    <img class="play-img" src="pages/play button.png" alt="" draggable="false" />
+                    <span class="core-flash"></span>
+                    <span class="core-wave"></span>
+                  </span>
+                </button>
+              </div>
+              <!-- BACK of the front cover: intentionally BLANK (plain dark board). -->
+              <div class="face back"></div>
+            </div>
+            </div><!-- /cover-holder -->
+
+          </div>
+        </div>
+      </div>
+    </div>
+    </div><!-- /cover-scene -->
+
+    <!-- Flat, top-most, transparent tap zone that only OPENS the book. -->
+    <div class="tap-catcher" id="tapCatcher"></div>
+
+    <!-- (THE END is now a real final PAGE — the last leaf, built by script.js:
+         a cream "paper" page with "THE END" + a Replay button. Replay closes the
+         whole book, reverse of the opening swing, back to the front cover.) -->
+    </div><!-- /book-stage -->
+    </div><!-- /flip-scale -->
+  </div>
+</div>
+
+<!-- Flip arrows OUTSIDE the book, fixed at the viewport's bottom corners
+     (bottom-left = back, bottom-right = forward). -->
+<button class="corner-arrow back" id="cornerPrev" aria-label="Previous page">
+  <svg viewBox="0 0 48 48" aria-hidden="true">
+    <path d="M18 10 L32 24 L18 38" fill="none" stroke="currentColor" stroke-width="7.5"
+          stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
+<button class="corner-arrow fwd" id="cornerNext" aria-label="Next page">
+  <svg viewBox="0 0 48 48" aria-hidden="true">
+    <path d="M18 10 L32 24 L18 38" fill="none" stroke="currentColor" stroke-width="7.5"
+          stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
+
+<!-- Hamburger menu (top-right, visible while reading) — one quick action: Skip
+     jumps past the current page (ends its video/beat and turns forward). -->
+<div class="ham-wrap" id="hamWrap">
+  <button class="ham-btn" id="hamBtn" type="button" aria-label="Menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="ham-menu" role="menu">
+    <button class="ham-item" id="menuSkip" type="button" role="menuitem">⏭&nbsp; Skip</button>
+  </div>
+</div>
+
+<!-- GSAP (local copy, works on file://) — drives the physical page-flip motion:
+     lift → gravity fall → tiny landing bounce. If this file fails to load, the
+     book automatically falls back to the original CSS-transition flip. -->
+<script src="gsap.min.js"></script>
+<!-- ►  YOUR STORY (pages, cover) — edit this file -->
+<script src="story.js"></script>
+<!-- The flip engine (reads window.STORY) — do not edit -->
+<script src="script.js"></script>
+</body>
+</html>
