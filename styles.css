@@ -1063,10 +1063,18 @@
     --pb-halo: rgba(253,168,1, 0.85);     /* wide bloom out into the cover  */
     --pb-glow: 1;                /* glow intensity multiplier (hover raises)   */
     --pb-scale: 1;               /* interaction scale (hover 1.08, press 0.95) */
-    /* Horizontally DEAD CENTRE; vertically centred in the open space BELOW the
-       title banner (at a true 50% the orb overlapped the banner's bottom scroll).
-       Move the button with these two numbers. */
-    position: absolute; left: 50%; top: 75%;
+    /* Horizontally DEAD CENTRE; vertically parked in the open grass BELOW the
+       title sign (at a true 50% the orb overlapped the banner's bottom scroll).
+       Move the button with these two numbers.
+       WHY 82% — the title sign is painted INTO the cover art (pages/cover page.png),
+       so it cannot be moved; only the orb can. The sign's leaf fringe hangs to
+       ~y=690 of the 941px-tall artwork, which `contain`-fits to book y≈515. At
+       152px (the clamp ceiling below) the orb's radius is 76, so any top below
+       ~81.5% still clips a leaf tip. 82% is the first value that clears the
+       fringe outright, and it still leaves ~26px between the orb's bottom and
+       the poster plate's lower edge. Raising it back toward 75% re-creates the
+       overlap; lowering it much past 84% crowds the plate edge. */
+    position: absolute; left: 50%; top: 82%;
     transform: translate(-50%, -50%) scale(var(--pb-scale));
     z-index: 2;                                 /* above the full-bleed artwork */
     width: clamp(108px, 13vw, 152px); height: clamp(108px, 13vw, 152px);
@@ -1094,11 +1102,11 @@
   .play-btn.is-loading::before, .play-btn.is-loading::after { display: none; }
 
   .loader {
-    /* SAME CENTRE AS .play-btn (left 50% / top 75%) — the bar is replaced by the
+    /* SAME CENTRE AS .play-btn (left 50% / top 82%) — the bar is replaced by the
        orb in place, so if these two disagree the button visibly jumps when
        loading finishes. Keep them in step: move one, move the other. (They had
        drifted apart, which also parked the bar across the title sign.) */
-    position: absolute; left: 50%; top: 75%; z-index: 3;
+    position: absolute; left: 50%; top: 82%; z-index: 3;
     transform: translate(-50%, -50%);
     width: clamp(190px, 26vw, 330px);
     display: flex; flex-direction: column; align-items: center; gap: 10px;
