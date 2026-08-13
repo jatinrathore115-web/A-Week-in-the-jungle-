@@ -1425,6 +1425,17 @@
   .leaf.dormant { visibility: hidden; will-change: auto; }
   /* …and its media stops being a decode target while it is away */
   .leaf.dormant .page-media { visibility: hidden; }
+  /* A sheet MID-RIFFLE is exempt from the windowing above. A rewind (Read again,
+     or a multi-page jump) turns pages that are FAR outside the live window: from
+     THE END every sheet but the last two is .dormant, and a visibility:hidden
+     page turns INVISIBLY — the rewind ran, but the reader only ever saw the last
+     couple of sheets drop. script.js (wakeLeaf/sleepLeaf) adds .riffling for
+     exactly as long as a sheet is in the air, so only a few layers are ever live
+     at once and the GPU budget the windowing protects is left intact.
+     These MUST stay below the .dormant rules: same specificity, so source order
+     is what lets the override win. */
+  .leaf.riffling { visibility: visible; }
+  .leaf.riffling .page-media { visibility: visible; }
 
   .leaf .face {
     position: absolute; inset: 0; overflow: hidden;

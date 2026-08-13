@@ -893,7 +893,12 @@ function cascadeClose(done) {
   if (!G || n <= 0) { done(); return; }
   if (_peelTween) { _peelTween.kill(); _peelTween = null; }
   const falling = leaves.slice(0, n);
-  sfxRiffle(Math.min(n, 12), 0.085);       // one swoosh per falling sheet (see cascadeTo)
+  // Riffle stagger / one sheet's fall. Paced like the finale it is (matching
+  // rewindToStart), NOT like a mid-book jump: wide enough that the reader reads
+  // the pages coming back ONE BY ONE. It was 0.085/0.38 while the sheets were
+  // still being hidden by the windowing — nothing was visible to pace.
+  const STAG = 0.12, FALL = 0.52;
+  sfxRiffle(Math.min(n, 12), STAG);        // one swoosh per falling sheet (see cascadeTo)
   falling.forEach(function (l) { l.style.transition = "none"; });   // GSAP owns the motion
   const tl = G.timeline({
     onComplete: function () {
@@ -911,10 +916,15 @@ function cascadeClose(done) {
   });
   for (let k = 0; k < n; k++) {
     const leaf = leaves[n - 1 - k];          // most recently turned page falls first
-    const at = k * 0.085;                    // riffle stagger
+    const at = k * STAG;                     // riffle stagger
     tl.set(leaf, { zIndex: 320 + k }, at);   // later sheets land ON TOP → page 1 ends up top
+    tl.call(wakeLeaf, [leaf], at);           // …and it must be VISIBLE to be seen falling
     tl.fromTo(leaf, { rotationY: -180, transformOrigin: "left center" },
-                    { rotationY: 0, duration: 0.38, ease: "power2.in" }, at);
+                    { rotationY: 0, duration: FALL, ease: "power2.in" }, at);
+    // Back to sleep the moment the NEXT sheet has landed over it, so however
+    // long the story is only a few layers are ever live at once. The last sheet
+    // down (page 1) is left awake — nothing lands on top of it.
+    if (k + 1 < n) tl.call(sleepLeaf, [leaf], (k + 1) * STAG + FALL);
   }
 }
 
@@ -2829,8 +2839,11 @@ function cascadeTo(target, opts) {
   order.forEach(function (i, k) {
     const leaf = leaves[i], at = k * stag;
     tl.set(leaf, { zIndex: 330 + k }, at);         // each sheet lands ON the one before
+    tl.call(wakeLeaf, [leaf], at);                 // exempt from windowing while in the air
     tl.fromTo(leaf, { rotationY: back ? -180 : 0, transformOrigin: "left center" },
                     { rotationY: back ? 0 : -180, duration: dur, ease: "power2.inOut" }, at);
+    // …and dormant again once the next sheet covers it (see wakeLeaf/sleepLeaf).
+    if (k + 1 < order.length) tl.call(sleepLeaf, [leaf], (k + 1) * stag + dur);
   });
   return true;
 }
@@ -2889,8 +2902,24 @@ function windowLeaves() {
     const dormant = d > LEAF_WINDOW;
     leaf.classList.toggle("dormant", dormant);
     leaf.classList.toggle("near", !dormant && d <= 1);
+    // A riffle override never outlives the riffle: every navigation ends by
+    // re-windowing, so a killed/interrupted cascade cannot strand a sheet awake.
+    leaf.classList.remove("riffling");
   });
 }
+
+/* ---- RIFFLE VISIBILITY  —  the counterpart to windowLeaves() ---------------
+   The window above keeps only the pages around the CURRENT one renderable;
+   everything further out is .dormant (visibility:hidden) so the compositor can
+   drop the layer. But a RIFFLE turns pages that are far outside that window —
+   from THE END, every sheet except the last two is dormant — so the rewind
+   animated INVISIBLY: the reader saw the final couple of sheets fall and then
+   the book simply jumped to the cover.
+   These wake a sheet for exactly as long as it is in the air. .riffling is an
+   OVERRIDE (see styles.css), not a change to the window itself, so windowing
+   still owns .dormant and an interrupted cascade can't leave it mis-marked. */
+function wakeLeaf(leaf)  { if (leaf) leaf.classList.add("riffling"); }
+function sleepLeaf(leaf) { if (leaf) leaf.classList.remove("riffling"); }
 
 /* ==========================================================================
    PRELOADER  —  every asset is in the browser before Play appears.
